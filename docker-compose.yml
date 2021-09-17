@@ -3,8 +3,17 @@ version: "3"
 volumes:
     mysql-volume:
     golang-volume:
+    auth-volume:
 
 services:
+    auth:
+        build: auth/app
+        volumes:
+            - ./auth/app:/workspace
+            - auth-volume:/go
+        working_dir: /workspace
+        env_file:
+            - ./auth/.env
     golang:
         build: app
         ports:

@@ -4,40 +4,59 @@ import (
 	"github.com/hmrkm/simple-user-manage/usecase"
 )
 
-type UsersAdapter interface {
-	GetList(GetV1UsersParams) (ResponseGetUsers, error)
-	Post(RequestPostUsers) error
-	Get(string) (ResponseGetUser, error)
-	Put(RequestPutUsers) error
-	Delete(string) error
+type Users interface {
+	List(RequestUsersList) (ResponseUsersList, error)
+	Create(RequestUsersCreate) error
+	Detail(RequestUsersDetail) (ResponseUsersDetail, error)
+	Update(RequestUsersUpdate) error
+	Delete(RequestUsersDelete) error
 }
 
-type usersAdapter struct {
-	userService usecase.UserService
+type users struct {
+	users usecase.Users
 }
 
-func NewUsersAdapter(us usecase.UserService) UsersAdapter {
-	return usersAdapter{
-		userService: us,
+func NewUsers(u usecase.Users) Users {
+	return users{
+		users: u,
 	}
 }
 
-func (u usersAdapter) GetList(req GetV1UsersParams) (ResponseGetUsers, error) {
-	return ResponseGetUsers{}, nil
+func (u users) List(req RequestUsersList) (ResponseUsersList, error) {
+	list, now, last, err := u.users.List(req.Page, req.Limit)
+	if err != nil {
+		return ResponseUsersList{}, err
+	}
+
+	ul := []User{}
+	for _, v := range list {
+		ul = append(ul, User{
+			Email: v.Email,
+			Id:    v.Id,
+		})
+	}
+
+	return ResponseUsersList{
+		List: ul,
+		Page: Page{
+			Last: last,
+			Now:  now,
+		},
+	}, nil
 }
 
-func (u usersAdapter) Post(req RequestPostUsers) error {
+func (u users) Create(req RequestUsersCreate) error {
 	return nil
 }
 
-func (u usersAdapter) Get(id string) (ResponseGetUser, error) {
-	return ResponseGetUser{}, nil
+func (u users) Detail(req RequestUsersDetail) (ResponseUsersDetail, error) {
+	return ResponseUsersDetail{}, nil
 }
 
-func (u usersAdapter) Put(req RequestPutUsers) error {
+func (u users) Update(req RequestUsersUpdate) error {
 	return nil
 }
 
-func (u usersAdapter) Delete(id string) error {
+func (u users) Delete(RequestUsersDelete) error {
 	return nil
 }

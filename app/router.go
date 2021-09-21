@@ -1,0 +1,85 @@
+package main
+
+import (
+	"github.com/hmrkm/simple-user-manage/adapter"
+	"github.com/labstack/echo/v4"
+)
+
+func Router(e *echo.Echo, ua adapter.Users) {
+	g := e.Group("/v1/users")
+
+	g.POST("/list", func(c echo.Context) error {
+		req := adapter.RequestUsersList{}
+		if err := c.Bind(&req); err != nil {
+			return c.JSON(400, nil)
+		}
+
+		res, err := ua.List(req)
+
+		if jsn := ErrorHandler(c, err); jsn != nil {
+			return jsn
+		}
+
+		return c.JSON(200, res)
+	})
+
+	g.POST("/create", func(c echo.Context) error {
+		req := adapter.RequestUsersCreate{}
+		if err := c.Bind(&req); err != nil {
+			return c.JSON(400, nil)
+		}
+
+		err := ua.Create(req)
+
+		if jsn := ErrorHandler(c, err); jsn != nil {
+			return jsn
+		}
+
+		return c.JSON(200, nil)
+	})
+
+	g.POST("/detail", func(c echo.Context) error {
+		req := adapter.RequestUsersDetail{}
+		if err := c.Bind(&req); err != nil {
+			return c.JSON(400, nil)
+		}
+
+		res, err := ua.Detail(req)
+
+		if jsn := ErrorHandler(c, err); jsn != nil {
+			return jsn
+		}
+
+		return c.JSON(200, res)
+	})
+
+	g.POST("/update", func(c echo.Context) error {
+		req := adapter.RequestUsersUpdate{}
+		if err := c.Bind(&req); err != nil {
+			return c.JSON(400, nil)
+		}
+
+		err := ua.Update(req)
+
+		if jsn := ErrorHandler(c, err); jsn != nil {
+			return jsn
+		}
+
+		return c.JSON(200, nil)
+	})
+
+	g.POST("/delete", func(c echo.Context) error {
+		req := adapter.RequestUsersDelete{}
+		if err := c.Bind(&req); err != nil {
+			return c.JSON(400, nil)
+		}
+
+		err := ua.Delete(req)
+
+		if jsn := ErrorHandler(c, err); jsn != nil {
+			return jsn
+		}
+
+		return c.JSON(200, nil)
+	})
+}

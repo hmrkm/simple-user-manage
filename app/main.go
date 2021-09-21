@@ -4,9 +4,13 @@ import (
 	"os"
 
 	"github.com/hmrkm/simple-user-manage/adapter"
+	"github.com/hmrkm/simple-user-manage/domain"
 	"github.com/hmrkm/simple-user-manage/io"
 	"github.com/hmrkm/simple-user-manage/usecase"
 	"github.com/labstack/echo/v4"
+	mysqlDriver "gorm.io/driver/mysql"
+	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 func main() {
@@ -15,27 +19,24 @@ func main() {
 	mysqlPassword := os.Getenv("MYSQL_PASSWORD")
 	mysqlDatabase := os.Getenv("MYSQL_DATABASE")
 
-	mysql := io.OpenMysql(mysqlUser, mysqlPassword, mysqlDatabase)
+	db, err := gorm.Open(mysqlDriver.Open(io.CreateDSN(mysqlUser, mysqlPassword, mysqlDatabase)), &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Info),
+	})
+	if err != nil {
+		panic(err)
+	}
+
+	mysql := io.Mysql{
+		Conn: db,
+	}
 	defer mysql.Close()
 
-	usu := usecase.NewUserService(mysql)
-	ua := adapter.NewUsersAdapter(usu)
+	usd := domain.NewUserService(mysql)
+	usu := usecase.NewUsers(usd)
+	ua := adapter.NewUsers(usu)
 
 	e := echo.New()
-	e.GET("/v1/users", func(c echo.Context) error {
-		req := adapter.GetV1UsersParams{}
-		if err := c.Bind(&req); err != nil {
-			return c.JSON(400, nil)
-		}
-
-		res, err := ua.GetList(req)
-
-		if err != nil {
-			return c.JSON(403, nil)
-		}
-
-		return c.JSON(200, res)
-	})
+	Router(e, ua)
 
 	e.Logger.Fatal(e.Start(":80"))
 }

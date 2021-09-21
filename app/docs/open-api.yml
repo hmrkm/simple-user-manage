@@ -8,26 +8,32 @@ info:
 servers:
   - url: 'http://localhost:80'
 paths:
-  /v1/users:
-    get:
-      summary: ユーザーリスト取得
-      tags:
-        - adapter
-      responses:
-        '200':
-          $ref: '#/components/responses/ResponseGetUsers'
-        '401':
-          description: Unauthorized
-      operationId: get-v1-users
-      description: ユーザーのリストを取得
-      parameters:
-        - $ref: '#/components/parameters/page'
-        - $ref: '#/components/parameters/limit'
-        - $ref: '#/components/parameters/auth_token'
+  /v1/users/list:
     parameters: []
     post:
-      summary: ユーザー新規作成
-      operationId: post-v1-users
+      summary: ユーザーリスト取得
+      operationId: post-v1-users-list
+      responses:
+        '200':
+          $ref: '#/components/responses/ResponseUsersList'
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal Server Error
+      description: usersテーブルからlimit数、(page-1)*limitオフセットのデータを取得する
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RequestUsersList'
+      parameters:
+        - $ref: '#/components/parameters/auth_token'
+  /v1/users/create:
+    post:
+      summary: 新規ユーザー作成
+      operationId: post-v1-users-create
       responses:
         '200':
           description: OK
@@ -35,39 +41,43 @@ paths:
           description: Bad Request
         '401':
           description: Unauthorized
-      description: ユーザーを新規作成
+        '500':
+          description: Internal Server Error
+      description: リクエストボディを初期値にしたレコードをusersテーブルに追加する
+      parameters:
+        - $ref: '#/components/parameters/auth_token'
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/RequestPostUsers'
-      parameters:
-        - $ref: '#/components/parameters/auth_token'
-  '/v1/users/{userId}':
-    get:
+              $ref: '#/components/schemas/RequestUsersCreate'
+  /v1/users/detail:
+    post:
       summary: ユーザー詳細取得
-      tags: []
+      operationId: post-v1-users-detail
+      description: idをキーにusersテーブルを検索し、ヒットしたレコードを返す
       responses:
         '200':
-          $ref: '#/components/responses/ResponseGetUser'
+          $ref: '#/components/responses/ResponseUsersDetail'
+        '400':
+          description: Bad Request
         '401':
           description: Unauthorized
         '404':
           description: Not Found
-      operationId: 'get-v1-users-:userId'
-      description: ユーザーの詳細情報を取得
+        '500':
+          description: Internal Server Error
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RequestUsersDetail'
       parameters:
         - $ref: '#/components/parameters/auth_token'
-    parameters:
-      - name: userId
-        in: path
-        required: true
-        schema:
-          type: string
-        description: ユーザーID
-    put:
-      summary: ユーザー詳細更新
-      operationId: put-v1-users-userId
+  /v1/users/update:
+    post:
+      summary: ''
+      operationId: post-v1-users-update
       responses:
         '200':
           description: OK
@@ -77,28 +87,42 @@ paths:
           description: Unauthorized
         '404':
           description: Not Found
-      description: ユーザー詳細を更新する
+        '500':
+          description: Internal Server Error
+      description: usersテーブルのレコードを更新する
       parameters:
         - $ref: '#/components/parameters/auth_token'
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/RequestPutUsers'
-    delete:
+              $ref: '#/components/schemas/RequestUsersUpdate'
+  /v1/users/delete:
+    post:
       summary: ユーザー削除
-      operationId: delete-v1-users-userId
+      operationId: post-v1-users-delete
       responses:
         '200':
           description: OK
+        '400':
+          description: Bad Request
         '401':
           description: Unauthorized
-      description: ユーザーを削除
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+      description: usersテーブルからレコードを削除する
       parameters:
         - $ref: '#/components/parameters/auth_token'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RequestUsersDelete'
 components:
   schemas:
-    RequestPostUsers:
+    RequestUsersCreate:
       title: RequestPostUsers
       type: object
       description: ユーザー新規作成リクエスト
@@ -116,11 +140,14 @@ components:
         - email
         - password
         - password_conf
-    RequestPutUsers:
-      title: RequestPutUsers
+    RequestUsersUpdate:
+      title: RequestUsersUpdate
       type: object
       description: ユーザー詳細更新リクエスト
       properties:
+        id:
+          type: string
+          description: ユーザーID
         email:
           type: string
           description: メールアドレス
@@ -131,91 +158,97 @@ components:
           type: string
           description: 確認用パスワード
       required:
+        - id
         - email
+    RequestUsersList:
+      title: RequestUsersList
+      type: object
+      properties:
+        page:
+          type: integer
+          description: ページャー
+        limit:
+          type: integer
+          description: 件数
+      required:
+        - page
+        - limit
+      description: ユーザーリスト取得リクエスト
+    RequestUsersDetail:
+      title: RequestUsersDetail
+      type: object
+      properties:
+        id:
+          type: string
+          description: ユーザーID
+      required:
+        - id
+      description: ユーザー詳細情報取得リクエスト
+    RequestUsersDelete:
+      title: RequestUsersDelete
+      type: object
+      properties:
+        id:
+          type: string
+          description: ユーザーID
+      required:
+        - id
+      description: ユーザー削除リクエスト
+    User:
+      title: User
+      type: object
+      description: ユーザー
+      properties:
+        id:
+          type: string
+          description: ユーザーID
+        email:
+          type: string
+          description: メールアドレス
+      required:
+        - id
+        - email
+    Page:
+      title: Page
+      type: object
+      description: ページャー
+      properties:
+        now:
+          type: integer
+          description: 現在位置
+        last:
+          type: integer
+          description: 最終位置
+      required:
+        - now
+        - last
   responses:
-    ResponseGetUsers:
+    ResponseUsersList:
       description: ユーザーリスト取得の応答
       content:
         application/json:
           schema:
             type: object
-            description: ユーザーリスト
+            description: ''
             properties:
               list:
                 type: array
+                description: ユーザーリスト
                 items:
-                  type: object
-                  properties:
-                    id:
-                      type: string
-                      description: ユーザーID
-                    email:
-                      type: string
-                      description: メールアドレス
-                  required:
-                    - id
-                    - email
+                  $ref: '#/components/schemas/User'
               page:
-                type: object
-                required:
-                  - now
-                  - last
-                description: ページング情報
-                properties:
-                  now:
-                    type: integer
-                    description: 現在位置
-                  last:
-                    type: integer
-                    description: 最終ページ
+                $ref: '#/components/schemas/Page'
             required:
               - list
               - page
           examples: {}
-    ResponseGetUser:
+    ResponseUsersDetail:
       description: ユーザー詳細習得応答
       content:
         application/json:
           schema:
-            type: object
-            properties:
-              id:
-                type: string
-                description: ユーザーID
-              email:
-                type: string
-                description: メールアドレス
-            required:
-              - id
-              - email
+            $ref: '#/components/schemas/User'
   parameters:
-    token:
-      name: token
-      in: query
-      required: true
-      schema:
-        type: string
-      description: トークン
-    page:
-      name: page
-      in: query
-      schema:
-        type: integer
-      description: ページャー
-    limit:
-      name: limit
-      in: query
-      required: false
-      schema:
-        type: integer
-      description: 件数
-    userId:
-      name: userId
-      in: path
-      required: true
-      schema:
-        type: string
-      description: ユーザーID
     auth_token:
       name: auth_token
       in: header

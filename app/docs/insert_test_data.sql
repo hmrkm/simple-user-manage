@@ -1,0 +1,21 @@
+-- password: `passwd`のSHA256ハッシュ
+insert into users (id, email, password) values ('a', 'aaa@example.com', '0d6be69b264717f2dd33652e212b173104b4a647b7c11ae72e9885f11cd312fb');
+insert into users (id, email, password) values ('b', 'bbb@example.com', '0d6be69b264717f2dd33652e212b173104b4a647b7c11ae72e9885f11cd312fb');
+insert into users (id, email, password) values ('c', 'ccc@example.com', '0d6be69b264717f2dd33652e212b173104b4a647b7c11ae72e9885f11cd312fb');
+insert into users (id, email, password) values ('d', 'ddd@example.com', '0d6be69b264717f2dd33652e212b173104b4a647b7c11ae72e9885f11cd312fb');
+insert into users (id, email, password) values ('e', 'eee@example.com', '0d6be69b264717f2dd33652e212b173104b4a647b7c11ae72e9885f11cd312fb');
+insert into users (id, email, password) values ('f', 'fff@example.com', '0d6be69b264717f2dd33652e212b173104b4a647b7c11ae72e9885f11cd312fb');
+insert into users (id, email, password) values ('g', 'ggg@example.com', '0d6be69b264717f2dd33652e212b173104b4a647b7c11ae72e9885f11cd312fb');
+insert into users (id, email, password) values ('h', 'hhh@example.com', '0d6be69b264717f2dd33652e212b173104b4a647b7c11ae72e9885f11cd312fb');
+insert into users (id, email, password) values ('i', 'iii@example.com', '0d6be69b264717f2dd33652e212b173104b4a647b7c11ae72e9885f11cd312fb');
+insert into users (id, email, password) values ('j', 'jjj@example.com', '0d6be69b264717f2dd33652e212b173104b4a647b7c11ae72e9885f11cd312fb');
+insert into users (id, email, password) values ('k', 'kkk@example.com', '0d6be69b264717f2dd33652e212b173104b4a647b7c11ae72e9885f11cd312fb');
+insert into users (id, email, password) values ('l', 'lll@example.com', '0d6be69b264717f2dd33652e212b173104b4a647b7c11ae72e9885f11cd312fb');
+insert into users (id, email, password) values ('m', 'mmm@example.com', '0d6be69b264717f2dd33652e212b173104b4a647b7c11ae72e9885f11cd312fb');
+insert into users (id, email, password) values ('n', 'nnn@example.com', '0d6be69b264717f2dd33652e212b173104b4a647b7c11ae72e9885f11cd312fb');
+insert into users (id, email, password) values ('o', 'ooo@example.com', '0d6be69b264717f2dd33652e212b173104b4a647b7c11ae72e9885f11cd312fb');
+insert into users (id, email, password) values ('p', 'ppp@example.com', '0d6be69b264717f2dd33652e212b173104b4a647b7c11ae72e9885f11cd312fb');
+insert into users (id, email, password) values ('q', 'qqq@example.com', '0d6be69b264717f2dd33652e212b173104b4a647b7c11ae72e9885f11cd312fb');
+insert into users (id, email, password) values ('r', 'rrr@example.com', '0d6be69b264717f2dd33652e212b173104b4a647b7c11ae72e9885f11cd312fb');
+insert into users (id, email, password) values ('s', 'sss@example.com', '0d6be69b264717f2dd33652e212b173104b4a647b7c11ae72e9885f11cd312fb');
+insert into users (id, email, password) values ('t', 'ttt@example.com', '0d6be69b264717f2dd33652e212b173104b4a647b7c11ae72e9885f11cd312fb');

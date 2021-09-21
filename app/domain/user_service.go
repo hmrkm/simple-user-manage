@@ -1,4 +1,4 @@
-package usecase
+package domain
 
 import (
 	"github.com/pkg/errors"
@@ -9,9 +9,7 @@ type UserService interface {
 	Create(id string, email string, hashedPassword string) error
 	Read(id string) (User, error)
 	ReadList(page int, limit int) ([]User, error)
-	UpdateWithPassword(id string, email string, hashedPassword string) error
-	Update(id string, email string) error
-	Delete(id string) error
+	Count() (int, error)
 }
 
 type userService struct {
@@ -52,39 +50,19 @@ func (us userService) ReadList(page int, limit int) ([]User, error) {
 	return u, nil
 }
 
-func (us userService) Update(id string, email string) error {
-	u, err := us.Read(id)
-	if err != nil {
-		return err
+func (us userService) Count() (int, error) {
+	count := int64(0)
+	if err := us.store.Count(&User{}, &count); err != nil {
+		return 0, errors.WithStack(err)
 	}
 
-	return us.store.Update(&u, map[string]interface{}{
-		"email": email,
-	})
-}
-
-func (us userService) UpdateWithPassword(id string, email string, hashedPassword string) error {
-	u, err := us.Read(id)
-	if err != nil {
-		return err
-	}
-
-	return us.store.Update(&u, map[string]interface{}{
-		"email":          email,
-		"hashedPassword": hashedPassword,
-	})
-}
-
-func (us userService) Delete(id string) error {
-	u, err := us.Read(id)
-	if err != nil {
-		return err
-	}
-
-	return us.store.Delete(&u)
+	return int(count), nil
 }
 
 func createOffset(page int, limit int) int {
+	if limit < 0 {
+		return 0
+	}
 	if page <= 0 {
 		return 0
 	}

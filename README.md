@@ -1,5 +1,7 @@
 # Simple-user-manage
 
+[![codecov](https://codecov.io/gh/hmrkm/simple-user-manage/branch/main/graph/badge.svg?token=LE4923URW1)](https://codecov.io/gh/hmrkm/simple-user-manage)
+
 シンプルなユーザー管理API
 
 ## 必要なもの
@@ -14,4 +16,3 @@
 4. DBに`app/docs/migration.sql`の内容を反映
 
 ## 使い方
-

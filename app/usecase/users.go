@@ -2,6 +2,7 @@ package usecase
 
 import "github.com/hmrkm/simple-user-manage/domain"
 
+//go:generate mockgen -source=$GOFILE -self_package=github.com/hmrkm/simple-user-manage/$GOPACKAGE -package=$GOPACKAGE -destination=users_mock.go
 type Users interface {
 	List(page int, limit int) (users []domain.User, now int, last int, err error)
 	Create(email string, password string, passwordConf string) error

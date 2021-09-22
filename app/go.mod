@@ -9,6 +9,7 @@ require (
 	github.com/deepmap/oapi-codegen v1.8.2 // indirect
 	github.com/golang/mock v1.6.0
 	github.com/google/go-cmp v0.5.6
+	github.com/kelseyhightower/envconfig v1.4.0 // indirect
 	github.com/labstack/echo/v4 v4.5.0
 	github.com/mattn/go-isatty v0.0.13 // indirect
 	github.com/oklog/ulid v1.3.1 // indirect

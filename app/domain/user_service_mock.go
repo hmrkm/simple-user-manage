@@ -91,3 +91,17 @@ func (mr *MockUserServiceMockRecorder) ReadList(page, limit interface{}) *gomock
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReadList", reflect.TypeOf((*MockUserService)(nil).ReadList), page, limit)
 }
+
+// VerifyPassword mocks base method.
+func (m *MockUserService) VerifyPassword(input, confirm string) bool {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "VerifyPassword", input, confirm)
+	ret0, _ := ret[0].(bool)
+	return ret0
+}
+
+// VerifyPassword indicates an expected call of VerifyPassword.
+func (mr *MockUserServiceMockRecorder) VerifyPassword(input, confirm interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "VerifyPassword", reflect.TypeOf((*MockUserService)(nil).VerifyPassword), input, confirm)
+}

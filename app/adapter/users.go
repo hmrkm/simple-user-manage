@@ -4,6 +4,7 @@ import (
 	"github.com/hmrkm/simple-user-manage/usecase"
 )
 
+//go:generate mockgen -source=$GOFILE -self_package=github.com/hmrkm/simple-user-manage/$GOPACKAGE -package=$GOPACKAGE -destination=users_mock.go
 type Users interface {
 	List(RequestUsersList) (ResponseUsersList, error)
 	Create(RequestUsersCreate) error

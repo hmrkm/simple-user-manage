@@ -1,11 +1,12 @@
 package io
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"strings"
 	"time"
 
 	"github.com/hmrkm/simple-user-manage/domain"
@@ -18,28 +19,25 @@ type HTTP struct {
 	sleepSecond int
 }
 
-func NewHTTP(rn int, ss int) domain.Communicator {
+func NewHTTP(retryNumber int, sleepSecond int) domain.Communicator {
 	return HTTP{
-		retryNumber: rn,
-		sleepSecond: ss,
+		retryNumber: retryNumber,
+		sleepSecond: sleepSecond,
 	}
 }
 
 // 引数
 // to: 宛先
-// m: 宛先に送るkey/value構造のオブジェクト
-// 戻り値
-// []byte: リクエストが成功した際に得られる応答
+// b: 宛先に送るオブジェクト
 func (hf HTTP) Request(
 	ctx context.Context,
 	to string,
-	m map[string]string,
+	body interface{},
 ) ([]byte, error) {
-	payload := url.Values{}
-	for k, v := range m {
-		payload.Add(k, v)
+	jsn, err := json.Marshal(body)
+	if err != nil {
+		return nil, errors.WithStack(err)
 	}
-	payloadString := strings.NewReader(payload.Encode())
 
 	url, err := url.Parse(to)
 	if err != nil {
@@ -47,7 +45,7 @@ func (hf HTTP) Request(
 	}
 
 	c := &http.Client{}
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url.String(), payloadString)
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, url.String(), bytes.NewBuffer(jsn))
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}

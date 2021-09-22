@@ -10,7 +10,13 @@ import (
 )
 
 type Mysql struct {
-	Conn GormConn
+	conn GormConn
+}
+
+func NewMysql(conn GormConn) Mysql {
+	return Mysql{
+		conn: conn,
+	}
 }
 
 func CreateDSN(user string, password string, database string) string {
@@ -18,7 +24,7 @@ func CreateDSN(user string, password string, database string) string {
 }
 
 func (m Mysql) Close() error {
-	db, err := m.Conn.DB()
+	db, err := m.conn.DB()
 	if err != nil {
 		return err
 	}
@@ -29,11 +35,11 @@ func (m Mysql) Close() error {
 }
 
 func (m Mysql) Find(destAddr interface{}, conds string, params ...interface{}) error {
-	return m.Conn.Find(destAddr, conds, params).Error
+	return m.conn.Find(destAddr, conds, params).Error
 }
 
 func (m Mysql) First(destAddr interface{}, conds string, params ...interface{}) error {
-	err := m.Conn.First(destAddr, conds, params).Error
+	err := m.conn.First(destAddr, conds, params).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return domain.ErrNotFound
 	}
@@ -42,23 +48,23 @@ func (m Mysql) First(destAddr interface{}, conds string, params ...interface{}) 
 }
 
 func (m Mysql) FindWithLimitAndOffset(destAddr interface{}, limit int, offset int) error {
-	return m.Conn.Limit(limit).Offset(offset).Find(destAddr).Error
+	return m.conn.Limit(limit).Offset(offset).Find(destAddr).Error
 }
 
 func (m Mysql) Create(targetAddr interface{}) error {
-	return m.Conn.Create(targetAddr).Error
+	return m.conn.Create(targetAddr).Error
 }
 
 func (m Mysql) Update(targetAddr interface{}, params map[string]interface{}) error {
-	return m.Conn.Model(targetAddr).Updates(params).Error
+	return m.conn.Model(targetAddr).Updates(params).Error
 }
 
 func (m Mysql) Delete(targetAddr interface{}) error {
-	return m.Conn.Delete(targetAddr).Error
+	return m.conn.Delete(targetAddr).Error
 }
 
 func (m Mysql) Count(targetAddr interface{}, count *int64) error {
-	return m.Conn.Model(targetAddr).Count(count).Error
+	return m.conn.Model(targetAddr).Count(count).Error
 }
 
 func (m Mysql) IsNotFoundError(err error) bool {

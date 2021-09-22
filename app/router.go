@@ -16,11 +16,11 @@ func Router(e *echo.Echo, ua adapter.Users) {
 
 		res, err := ua.List(req)
 
-		if jsn := ErrorHandler(c, err); jsn != nil {
-			return jsn
+		if err != nil {
+			return ErrorHandler(c, err)
+		} else {
+			return c.JSON(200, res)
 		}
-
-		return c.JSON(200, res)
 	})
 
 	g.POST("/create", func(c echo.Context) error {
@@ -31,11 +31,11 @@ func Router(e *echo.Echo, ua adapter.Users) {
 
 		err := ua.Create(req)
 
-		if jsn := ErrorHandler(c, err); jsn != nil {
-			return jsn
+		if err != nil {
+			return ErrorHandler(c, err)
+		} else {
+			return c.JSON(200, nil)
 		}
-
-		return c.JSON(200, nil)
 	})
 
 	g.POST("/detail", func(c echo.Context) error {
@@ -46,11 +46,12 @@ func Router(e *echo.Echo, ua adapter.Users) {
 
 		res, err := ua.Detail(req)
 
-		if jsn := ErrorHandler(c, err); jsn != nil {
-			return jsn
+		if err != nil {
+			return ErrorHandler(c, err)
+		} else {
+			return c.JSON(200, res)
 		}
 
-		return c.JSON(200, res)
 	})
 
 	g.POST("/update", func(c echo.Context) error {
@@ -61,11 +62,11 @@ func Router(e *echo.Echo, ua adapter.Users) {
 
 		err := ua.Update(req)
 
-		if jsn := ErrorHandler(c, err); jsn != nil {
-			return jsn
+		if err != nil {
+			return ErrorHandler(c, err)
+		} else {
+			return c.JSON(200, nil)
 		}
-
-		return c.JSON(200, nil)
 	})
 
 	g.POST("/delete", func(c echo.Context) error {
@@ -76,10 +77,10 @@ func Router(e *echo.Echo, ua adapter.Users) {
 
 		err := ua.Delete(req)
 
-		if jsn := ErrorHandler(c, err); jsn != nil {
-			return jsn
+		if err != nil {
+			return ErrorHandler(c, err)
+		} else {
+			return c.JSON(200, nil)
 		}
-
-		return c.JSON(200, nil)
 	})
 }

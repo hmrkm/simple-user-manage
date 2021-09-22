@@ -32,7 +32,7 @@ func main() {
 	defer mysql.Close()
 
 	usd := domain.NewUserService(mysql)
-	usu := usecase.NewUsers(usd)
+	usu := usecase.NewUsers(usd, mysql)
 	ua := adapter.NewUsers(usu)
 
 	e := echo.New()

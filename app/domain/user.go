@@ -3,7 +3,7 @@ package domain
 type User struct {
 	Id             string `json:"id" gorm:"column:id"`
 	Email          string `json:"email" gorm:"column:email"`
-	HashedPassword string `json:"hashed_password" gorm:"column:hashed_password"`
+	HashedPassword string `json:"password" gorm:"column:password"`
 }
 
 func (User) TableName() string {
@@ -18,8 +18,8 @@ func (u User) Update(s Store, value User) error {
 
 func (u User) UpdateWithPassword(s Store, value User) error {
 	return s.Update(&u, map[string]interface{}{
-		"email":           value.Email,
-		"hashed_password": value.HashedPassword,
+		"email":    value.Email,
+		"password": value.HashedPassword,
 	})
 }
 

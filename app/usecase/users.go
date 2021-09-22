@@ -4,19 +4,21 @@ import "github.com/hmrkm/simple-user-manage/domain"
 
 type Users interface {
 	List(page int, limit int) (users []domain.User, now int, last int, err error)
-	Create()
-	Detail()
-	Update()
-	Delete()
+	Create(email string, password string, passwordConf string) error
+	Detail(id string) (domain.User, error)
+	Update(id string, email string, password *string, passwordConf *string) error
+	Delete(id string) error
 }
 
 type users struct {
 	userService domain.UserService
+	store       domain.Store
 }
 
-func NewUsers(us domain.UserService) Users {
+func NewUsers(us domain.UserService, s domain.Store) Users {
 	return users{
 		userService: us,
+		store:       s,
 	}
 }
 
@@ -36,18 +38,53 @@ func (u users) List(page int, limit int) (users []domain.User, now int, last int
 	return us, now, last, nil
 }
 
-func (u users) Create() {
+func (u users) Create(email string, password string, passwordConf string) error {
+	if !u.userService.VerifyPassword(password, passwordConf) {
+		return domain.ErrInvalidValue
+	}
+
+	return u.userService.Create(
+		domain.CreateULID(),
+		email,
+		domain.CreateHash(password),
+	)
+}
+
+func (u users) Detail(id string) (domain.User, error) {
+	return u.userService.Read(id)
+}
+
+func (u users) Update(id string, email string, password *string, passwordConf *string) error {
+	hasPassword := password != nil && passwordConf != nil
+	if hasPassword {
+		if !u.userService.VerifyPassword(*password, *passwordConf) {
+			return domain.ErrInvalidValue
+		}
+	}
+
+	user, err := u.userService.Read(id)
+	if err != nil {
+		return err
+	}
+
+	if hasPassword {
+		return user.UpdateWithPassword(u.store, domain.User{
+			Email:          email,
+			HashedPassword: domain.CreateHash(*password),
+		})
+	} else {
+		return user.Update(u.store, domain.User{
+			Email: email,
+		})
+	}
 
 }
 
-func (u users) Detail() {
+func (u users) Delete(id string) error {
+	user, err := u.userService.Read(id)
+	if err != nil {
+		return err
+	}
 
-}
-
-func (u users) Update() {
-
-}
-
-func (u users) Delete() {
-
+	return user.Delete(u.store)
 }

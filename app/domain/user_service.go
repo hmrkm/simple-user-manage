@@ -10,6 +10,7 @@ type UserService interface {
 	Read(id string) (User, error)
 	ReadList(page int, limit int) ([]User, error)
 	Count() (int, error)
+	VerifyPassword(input string, confirm string) bool
 }
 
 type userService struct {
@@ -68,4 +69,8 @@ func createOffset(page int, limit int) int {
 	}
 
 	return (page - 1) * limit
+}
+
+func (us userService) VerifyPassword(input string, confirm string) bool {
+	return input == confirm
 }

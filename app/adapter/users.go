@@ -46,17 +46,25 @@ func (u users) List(req RequestUsersList) (ResponseUsersList, error) {
 }
 
 func (u users) Create(req RequestUsersCreate) error {
-	return nil
+	return u.users.Create(req.Email, req.Password, req.PasswordConf)
 }
 
 func (u users) Detail(req RequestUsersDetail) (ResponseUsersDetail, error) {
-	return ResponseUsersDetail{}, nil
+	user, err := u.users.Detail(req.Id)
+	if err != nil {
+		return ResponseUsersDetail{}, err
+	}
+
+	return ResponseUsersDetail{
+		Email: user.Email,
+		Id:    user.Id,
+	}, nil
 }
 
 func (u users) Update(req RequestUsersUpdate) error {
-	return nil
+	return u.users.Update(req.Id, req.Email, req.Password, req.PasswordConf)
 }
 
-func (u users) Delete(RequestUsersDelete) error {
-	return nil
+func (u users) Delete(req RequestUsersDelete) error {
+	return u.users.Delete(req.Id)
 }

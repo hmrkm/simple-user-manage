@@ -29,7 +29,7 @@ func NewHTTP(retryNumber int, sleepSecond int) domain.Communicator {
 // 引数
 // to: 宛先
 // body: 宛先に送るオブジェクト
-func (hf HTTP) Request(
+func (h HTTP) Request(
 	ctx context.Context,
 	to string,
 	body interface{},
@@ -52,7 +52,7 @@ func (hf HTTP) Request(
 
 	req.Header.Set("Content-Type", echo.MIMEApplicationJSON)
 
-	for i := 0; i < hf.retryNumber; i++ {
+	for i := 0; i < h.retryNumber; i++ {
 		res, err := c.Do(req)
 		if err != nil {
 			return nil, errors.WithStack(err)
@@ -70,7 +70,7 @@ func (hf HTTP) Request(
 		case res.StatusCode >= 400 && res.StatusCode < 500:
 			return nil, errors.WithStack(errors.New("url is " + to))
 		case res.StatusCode >= 500:
-			time.Sleep(time.Duration(hf.sleepSecond) * time.Second)
+			time.Sleep(time.Duration(h.sleepSecond) * time.Second)
 		default:
 			return nil, errors.WithStack(errors.New(http.StatusText(res.StatusCode)))
 		}

@@ -18,6 +18,7 @@ func TestRequest(t *testing.T) {
 		url           string
 		mockStatus    int
 		mockResBody   string
+		mockLocation  string
 		body          interface{}
 		expectResBody []byte
 		expectErr     error
@@ -28,6 +29,7 @@ func TestRequest(t *testing.T) {
 			"http://auth/v1/verify",
 			200,
 			"ok",
+			"location",
 			map[string]string{
 				"token": "aaa",
 			},
@@ -40,6 +42,7 @@ func TestRequest(t *testing.T) {
 			"http://auth/v1/verify",
 			400,
 			"ng",
+			"location",
 			map[string]string{
 				"token": "aaa",
 			},
@@ -52,6 +55,7 @@ func TestRequest(t *testing.T) {
 			"http://auth/v1/verify",
 			500,
 			"ng",
+			"location",
 			map[string]string{
 				"token": "aaa",
 			},
@@ -64,6 +68,7 @@ func TestRequest(t *testing.T) {
 			"http://auth/v1/verify",
 			100,
 			"ng",
+			"location",
 			map[string]string{
 				"token": "aaa",
 			},
@@ -76,6 +81,7 @@ func TestRequest(t *testing.T) {
 			"http://auth/v1/verify",
 			500,
 			"ng",
+			"location",
 			math.NaN(),
 			nil,
 			errors.New("json: unsupported value: NaN"),
@@ -86,6 +92,7 @@ func TestRequest(t *testing.T) {
 			"%%%%%%",
 			500,
 			"ng",
+			"location",
 			111,
 			nil,
 			errors.New("parse \"%%%%%%\": invalid URL escape \"%%%\""),
@@ -96,9 +103,21 @@ func TestRequest(t *testing.T) {
 			"http://auth/v1/verify",
 			500,
 			"ng",
+			"location",
 			111,
 			nil,
 			errors.New("net/http: nil Context"),
+		},
+		{
+			"Locationヘッダーエラー異常ケース",
+			context.Background(),
+			"http://auth/v1/verify",
+			301,
+			"ok",
+			"",
+			111,
+			nil,
+			errors.New("Post \"http://auth/v1/verify\": 301 response missing Location header"),
 		},
 	}
 
@@ -107,11 +126,11 @@ func TestRequest(t *testing.T) {
 			httpmock.Activate()
 			defer httpmock.DeactivateAndReset()
 
-			httpmock.RegisterResponder("POST", tc.url, httpmock.NewStringResponder(tc.mockStatus, tc.mockResBody))
+			httpmock.RegisterResponder("POST", tc.url, newMockResponder(tc.mockStatus, tc.mockResBody, tc.mockLocation))
 
-			hc := NewHTTP(1, 1)
+			http := NewHTTP(1, 1)
 
-			actualResBody, actualErr := hc.Request(tc.ctx, tc.url, tc.body)
+			actualResBody, actualErr := http.Request(tc.ctx, tc.url, tc.body)
 
 			if diff := cmp.Diff(actualResBody, tc.expectResBody); diff != "" {
 				t.Errorf("Request() response is missmatch %s", diff)
@@ -127,4 +146,10 @@ func TestRequest(t *testing.T) {
 			}
 		})
 	}
+}
+
+func newMockResponder(status int, body string, location string) httpmock.Responder {
+	resp := httpmock.NewStringResponse(status, body)
+	resp.Header.Set("Location", location)
+	return httpmock.ResponderFromResponse(resp)
 }

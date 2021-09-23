@@ -2,9 +2,62 @@ package domain
 
 import (
 	"testing"
+	"time"
 
 	"github.com/google/go-cmp/cmp"
 )
+
+func TestCreateHash(t *testing.T) {
+	testCases := []struct {
+		name     string
+		src      string
+		expected string
+	}{
+		{
+			"正常ケース",
+			"password",
+			"5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+
+			actual := CreateHash(tc.src)
+
+			if diff := cmp.Diff(tc.expected, actual); diff != "" {
+				t.Errorf("CreateHash() value is missmatch :%s", diff)
+			}
+		})
+	}
+}
+func TestCreateULID(t *testing.T) {
+	layout := "2006年01月02日 15時04分05秒 (MST)"
+	now, _ := time.Parse(layout, "2021年09月08日 10時00分00秒 (JST)")
+
+	testCases := []struct {
+		name     string
+		now      time.Time
+		expected string
+	}{
+		{
+			"正常ケース",
+			now,
+			"01FF1EPDM0V1J25N30TAC2M9WM",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+
+			actual := CreateULID(tc.now)
+
+			if diff := cmp.Diff(tc.expected, actual); diff != "" {
+				t.Errorf("CreateULID() value is missmatch :%s", diff)
+			}
+		})
+	}
+}
 
 func TestPager(t *testing.T) {
 	testCases := []struct {

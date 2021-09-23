@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 
 	"github.com/hmrkm/simple-user-manage/domain"
+	"github.com/pkg/errors"
 )
 
 //go:generate mockgen -source=$GOFILE -self_package=github.com/hmrkm/simple-user-manage/$GOPACKAGE -package=$GOPACKAGE -destination=auth_mock.go
@@ -43,7 +44,9 @@ func (au auth) Auth(c context.Context, token string) (domain.User, error) {
 		return domain.User{}, err
 	}
 
-	json.Unmarshal(res, &ar)
+	if err := json.Unmarshal(res, &ar); err != nil {
+		return domain.User{}, errors.WithStack(domain.ErrInvalidValue)
+	}
 
 	u, err := au.userService.Read(ar.User.Id)
 	if err != nil {

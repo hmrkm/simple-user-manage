@@ -14,10 +14,9 @@ func CreateHash(src string) string {
 	return hex.EncodeToString(sha256ByteArr[:])
 }
 
-func CreateULID() string {
-	t := time.Now()
-	entropy := ulid.Monotonic(rand.New(rand.NewSource(t.UnixNano())), 0)
-	id := ulid.MustNew(ulid.Timestamp(t), entropy)
+func CreateULID(now time.Time) string {
+	entropy := ulid.Monotonic(rand.New(rand.NewSource(now.UnixNano())), 0)
+	id := ulid.MustNew(ulid.Timestamp(now), entropy)
 	return id.String()
 }
 

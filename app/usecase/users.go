@@ -1,6 +1,10 @@
 package usecase
 
-import "github.com/hmrkm/simple-user-manage/domain"
+import (
+	"time"
+
+	"github.com/hmrkm/simple-user-manage/domain"
+)
 
 //go:generate mockgen -source=$GOFILE -self_package=github.com/hmrkm/simple-user-manage/$GOPACKAGE -package=$GOPACKAGE -destination=users_mock.go
 type Users interface {
@@ -45,7 +49,7 @@ func (u users) Create(email string, password string, passwordConf string) error 
 	}
 
 	return u.userService.Create(
-		domain.CreateULID(),
+		domain.CreateULID(time.Now()),
 		email,
 		domain.CreateHash(password),
 	)

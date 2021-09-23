@@ -28,12 +28,12 @@ func NewHTTP(retryNumber int, sleepSecond int) domain.Communicator {
 
 // 引数
 // to: 宛先
-// b: 宛先に送るオブジェクト
+// body: 宛先に送るオブジェクト
 func (hf HTTP) Request(
 	ctx context.Context,
 	to string,
 	body interface{},
-) ([]byte, error) {
+) (response []byte, err error) {
 	jsn, err := json.Marshal(body)
 	if err != nil {
 		return nil, errors.WithStack(err)

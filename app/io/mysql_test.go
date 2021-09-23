@@ -3,6 +3,7 @@ package io
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"regexp"
 	"testing"
 
@@ -204,6 +205,51 @@ func TestFirst(t *testing.T) {
 	}
 }
 
+func TestFindWithLimitAndOffset(t *testing.T) {
+	testCases := []struct {
+		name        string
+		mockTable   MockTable
+		limit       int
+		offset      int
+		dbId        string
+		dbName      string
+		expectedErr error
+	}{
+		{
+
+			"正常ケース",
+			MockTable{
+				Id:   "1",
+				Name: "aaa",
+			},
+			10,
+			10,
+			"aaa",
+			"name",
+			nil,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			mysql, sqlMock := NewMysqlMock()
+
+			actual := MockTable{}
+			sqlMock.ExpectQuery(regexp.QuoteMeta(
+				"SELECT * FROM `mock_tables` LIMIT " + fmt.Sprint(tc.limit) + " OFFSET " + fmt.Sprint(tc.offset),
+			)).
+				WillReturnRows(sqlmock.NewRows([]string{"id", "name"}).
+					AddRow(tc.dbId, tc.dbName))
+
+			actualErr := mysql.FindWithLimitAndOffset(&actual, tc.limit, tc.offset)
+
+			if !errors.Is(actualErr, tc.expectedErr) {
+				t.Errorf("FindWithLimitAndOffset() actualErr: %v, ecpectedErr: %v", actualErr, tc.expectedErr)
+			}
+		})
+	}
+}
+
 func TestCreate(t *testing.T) {
 	testCases := []struct {
 		name        string
@@ -238,6 +284,127 @@ func TestCreate(t *testing.T) {
 
 			if !errors.Is(actualErr, tc.expectedErr) {
 				t.Errorf("Create() actualErr: %v, ecpectedErr: %v", actualErr, tc.expectedErr)
+			}
+		})
+	}
+}
+
+func TestUpdate(t *testing.T) {
+	testCases := []struct {
+		name        string
+		mockTable   MockTable
+		params      map[string]interface{}
+		expectedErr error
+	}{
+		{
+
+			"正常ケース",
+			MockTable{
+				Id:   "1",
+				Name: "aaa",
+			},
+			map[string]interface{}{
+				"name": "bbb",
+			},
+			nil,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			mysql, sqlMock := NewMysqlMock()
+
+			sqlMock.ExpectBegin()
+			sqlMock.ExpectExec(regexp.QuoteMeta(
+				"UPDATE `mock_tables` SET `name`=? WHERE `id` = ?",
+			)).
+				WithArgs(tc.params["name"], tc.mockTable.Id).
+				WillReturnResult(sqlmock.NewResult(1, 1))
+			sqlMock.ExpectCommit()
+			sqlMock.ExpectClose()
+
+			actualErr := mysql.Update(&tc.mockTable, tc.params)
+
+			if !errors.Is(actualErr, tc.expectedErr) {
+				t.Errorf("Update() actualErr: %v, ecpectedErr: %v", actualErr, tc.expectedErr)
+			}
+		})
+	}
+}
+
+func TestDelete(t *testing.T) {
+	testCases := []struct {
+		name        string
+		mockTable   MockTable
+		expectedErr error
+	}{
+		{
+
+			"正常ケース",
+			MockTable{
+				Id:   "1",
+				Name: "aaa",
+			},
+			nil,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			mysql, sqlMock := NewMysqlMock()
+
+			sqlMock.ExpectBegin()
+			sqlMock.ExpectExec(regexp.QuoteMeta(
+				"DELETE FROM `mock_tables` WHERE `mock_tables`.`id` = ?",
+			)).
+				WithArgs(tc.mockTable.Id).
+				WillReturnResult(sqlmock.NewResult(1, 1))
+			sqlMock.ExpectCommit()
+			sqlMock.ExpectClose()
+
+			actualErr := mysql.Delete(&tc.mockTable)
+
+			if !errors.Is(actualErr, tc.expectedErr) {
+				t.Errorf("Delete() actualErr: %v, ecpectedErr: %v", actualErr, tc.expectedErr)
+			}
+		})
+	}
+}
+
+func TestCount(t *testing.T) {
+	testCases := []struct {
+		name        string
+		mockTable   MockTable
+		dbCount     int64
+		expectedErr error
+	}{
+		{
+
+			"正常ケース",
+			MockTable{
+				Id:   "1",
+				Name: "aaa",
+			},
+			10,
+			nil,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			mysql, sqlMock := NewMysqlMock()
+
+			sqlMock.ExpectQuery(regexp.QuoteMeta(
+				"SELECT count(*) FROM `mock_tables`",
+			)).
+				WillReturnRows(sqlmock.NewRows([]string{"count"}).
+					AddRow(tc.dbCount))
+
+			count := int64(0)
+			actualErr := mysql.Count(&tc.mockTable, &count)
+
+			if !errors.Is(actualErr, tc.expectedErr) {
+				t.Errorf("Count() actualErr: %v, ecpectedErr: %v", actualErr, tc.expectedErr)
 			}
 		})
 	}

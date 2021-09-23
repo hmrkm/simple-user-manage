@@ -13,15 +13,16 @@ import (
 
 func TestRequest(t *testing.T) {
 	testCases := []struct {
-		name          string
-		ctx           context.Context
-		url           string
-		mockStatus    int
-		mockResBody   string
-		mockLocation  string
-		body          interface{}
-		expectResBody []byte
-		expectErr     error
+		name              string
+		ctx               context.Context
+		url               string
+		mockStatus        int
+		mockResBody       string
+		mockLocation      string
+		mockReadCloserFlg bool
+		body              interface{}
+		expectResBody     []byte
+		expectErr         error
 	}{
 		{
 			"HTTPリクエスト正常ケース",
@@ -30,6 +31,7 @@ func TestRequest(t *testing.T) {
 			200,
 			"ok",
 			"location",
+			false,
 			map[string]string{
 				"token": "aaa",
 			},
@@ -43,6 +45,7 @@ func TestRequest(t *testing.T) {
 			400,
 			"ng",
 			"location",
+			false,
 			map[string]string{
 				"token": "aaa",
 			},
@@ -56,6 +59,7 @@ func TestRequest(t *testing.T) {
 			500,
 			"ng",
 			"location",
+			false,
 			map[string]string{
 				"token": "aaa",
 			},
@@ -69,6 +73,7 @@ func TestRequest(t *testing.T) {
 			100,
 			"ng",
 			"location",
+			false,
 			map[string]string{
 				"token": "aaa",
 			},
@@ -82,6 +87,7 @@ func TestRequest(t *testing.T) {
 			500,
 			"ng",
 			"location",
+			false,
 			math.NaN(),
 			nil,
 			errors.New("json: unsupported value: NaN"),
@@ -93,6 +99,7 @@ func TestRequest(t *testing.T) {
 			500,
 			"ng",
 			"location",
+			false,
 			111,
 			nil,
 			errors.New("parse \"%%%%%%\": invalid URL escape \"%%%\""),
@@ -104,6 +111,7 @@ func TestRequest(t *testing.T) {
 			500,
 			"ng",
 			"location",
+			false,
 			111,
 			nil,
 			errors.New("net/http: nil Context"),
@@ -115,9 +123,24 @@ func TestRequest(t *testing.T) {
 			301,
 			"ok",
 			"",
+			false,
 			111,
 			nil,
 			errors.New("Post \"http://auth/v1/verify\": 301 response missing Location header"),
+		},
+		{
+			"レスポンス異常ケース",
+			context.Background(),
+			"http://auth/v1/verify",
+			200,
+			"",
+			"location",
+			true,
+			map[string]string{
+				"token": "aaa",
+			},
+			nil,
+			errors.New("read error"),
 		},
 	}
 
@@ -126,7 +149,11 @@ func TestRequest(t *testing.T) {
 			httpmock.Activate()
 			defer httpmock.DeactivateAndReset()
 
-			httpmock.RegisterResponder("POST", tc.url, newMockResponder(tc.mockStatus, tc.mockResBody, tc.mockLocation))
+			httpmock.RegisterResponder(
+				"POST",
+				tc.url,
+				newMockResponder(tc.mockStatus, tc.mockResBody, tc.mockLocation, tc.mockReadCloserFlg),
+			)
 
 			http := NewHTTP(1, 1)
 
@@ -148,8 +175,23 @@ func TestRequest(t *testing.T) {
 	}
 }
 
-func newMockResponder(status int, body string, location string) httpmock.Responder {
+type errReader int
+
+func (errReader) Read(p []byte) (n int, err error) {
+	return 0, errors.New("read error")
+}
+
+func (errReader) Close() (err error) {
+	return errors.New("close error")
+}
+
+func newMockResponder(status int, body string, location string, mockReadCloserFlg bool) httpmock.Responder {
 	resp := httpmock.NewStringResponse(status, body)
 	resp.Header.Set("Location", location)
+
+	if mockReadCloserFlg {
+		resp.Body = errReader(0)
+	}
+
 	return httpmock.ResponderFromResponse(resp)
 }

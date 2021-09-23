@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"time"
@@ -61,7 +61,7 @@ func (h HTTP) Request(
 
 		switch {
 		case res.StatusCode >= 200 && res.StatusCode < 400:
-			resBytes, err := ioutil.ReadAll(res.Body)
+			resBytes, err := io.ReadAll(res.Body)
 			if err != nil {
 				return nil, errors.WithStack(err)
 			}

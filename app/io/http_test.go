@@ -3,6 +3,7 @@ package io
 import (
 	"context"
 	"errors"
+	"math"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
@@ -11,17 +12,20 @@ import (
 )
 
 func TestRequest(t *testing.T) {
-	url := "http://auth/v1/verify"
 	testCases := []struct {
 		name          string
+		ctx           context.Context
+		url           string
 		mockStatus    int
 		mockResBody   string
-		m             map[string]string
+		body          interface{}
 		expectResBody []byte
 		expectErr     error
 	}{
 		{
 			"HTTPリクエスト正常ケース",
+			context.Background(),
+			"http://auth/v1/verify",
 			200,
 			"ok",
 			map[string]string{
@@ -32,16 +36,20 @@ func TestRequest(t *testing.T) {
 		},
 		{
 			"HTTPリクエスト400異常ケース",
+			context.Background(),
+			"http://auth/v1/verify",
 			400,
 			"ng",
 			map[string]string{
 				"token": "aaa",
 			},
 			nil,
-			errors.New("url is " + url),
+			errors.New("url is http://auth/v1/verify"),
 		},
 		{
 			"HTTPリクエスト500異常ケース",
+			context.Background(),
+			"http://auth/v1/verify",
 			500,
 			"ng",
 			map[string]string{
@@ -52,6 +60,8 @@ func TestRequest(t *testing.T) {
 		},
 		{
 			"HTTPリクエスト100異常ケース",
+			context.Background(),
+			"http://auth/v1/verify",
 			100,
 			"ng",
 			map[string]string{
@@ -60,6 +70,36 @@ func TestRequest(t *testing.T) {
 			nil,
 			errors.New("Continue"),
 		},
+		{
+			"リクエストボディMarshalエラー異常ケース",
+			context.Background(),
+			"http://auth/v1/verify",
+			500,
+			"ng",
+			math.NaN(),
+			nil,
+			errors.New("json: unsupported value: NaN"),
+		},
+		{
+			"urlパースエラー異常ケース",
+			context.Background(),
+			"%%%%%%",
+			500,
+			"ng",
+			111,
+			nil,
+			errors.New("parse \"%%%%%%\": invalid URL escape \"%%%\""),
+		},
+		{
+			"コンテキストエラー異常ケース",
+			nil,
+			"http://auth/v1/verify",
+			500,
+			"ng",
+			111,
+			nil,
+			errors.New("net/http: nil Context"),
+		},
 	}
 
 	for _, tc := range testCases {
@@ -67,13 +107,11 @@ func TestRequest(t *testing.T) {
 			httpmock.Activate()
 			defer httpmock.DeactivateAndReset()
 
-			httpmock.RegisterResponder("POST", url, httpmock.NewStringResponder(tc.mockStatus, tc.mockResBody))
+			httpmock.RegisterResponder("POST", tc.url, httpmock.NewStringResponder(tc.mockStatus, tc.mockResBody))
 
 			hc := NewHTTP(1, 1)
 
-			ctx := context.Background()
-
-			actualResBody, actualErr := hc.Request(ctx, url, tc.m)
+			actualResBody, actualErr := hc.Request(tc.ctx, tc.url, tc.body)
 
 			if diff := cmp.Diff(actualResBody, tc.expectResBody); diff != "" {
 				t.Errorf("Request() response is missmatch %s", diff)

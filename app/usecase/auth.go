@@ -45,7 +45,7 @@ func (au auth) Auth(c context.Context, token string) (domain.User, error) {
 	}
 
 	if err := json.Unmarshal(res, &ar); err != nil {
-		return domain.User{}, errors.WithStack(domain.ErrInvalidValue)
+		return domain.User{}, domain.ErrInvalidValue
 	}
 
 	u, err := au.userService.Read(ar.User.Id)

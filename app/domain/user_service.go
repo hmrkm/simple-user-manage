@@ -35,7 +35,7 @@ func (us userService) Create(id string, email string, hashedPassword string) err
 func (us userService) Read(id string) (User, error) {
 	u := User{}
 	if err := us.store.First(&u, "id=?", id); err != nil {
-		return User{}, errors.WithStack(err)
+		return User{}, err
 	}
 
 	return u, nil
@@ -54,7 +54,7 @@ func (us userService) ReadList(page int, limit int) ([]User, error) {
 func (us userService) Count() (int, error) {
 	count := int64(0)
 	if err := us.store.Count(&User{}, &count); err != nil {
-		return 0, errors.WithStack(err)
+		return 0, err
 	}
 
 	return int(count), nil

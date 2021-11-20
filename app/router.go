@@ -6,9 +6,10 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func Router(e *echo.Echo, ua adapter.Users, au usecase.Auth) {
+func Router(e *echo.Echo, ua adapter.Users, au usecase.Auth, ru usecase.Rights) {
 	g := e.Group("/v1/users")
 	g.Use(AuthMiddleware(au))
+	g.Use(RightsMiddleware(ru))
 	g.POST("/list", func(c echo.Context) error {
 		req := adapter.RequestUsersList{}
 		if err := c.Bind(&req); err != nil {
@@ -19,9 +20,9 @@ func Router(e *echo.Echo, ua adapter.Users, au usecase.Auth) {
 
 		if err != nil {
 			return ErrorHandler(c, err)
-		} else {
-			return c.JSON(200, res)
 		}
+
+		return c.JSON(200, res)
 	})
 
 	g.POST("/create", func(c echo.Context) error {
@@ -34,9 +35,9 @@ func Router(e *echo.Echo, ua adapter.Users, au usecase.Auth) {
 
 		if err != nil {
 			return ErrorHandler(c, err)
-		} else {
-			return c.JSON(200, nil)
 		}
+
+		return c.JSON(200, nil)
 	})
 
 	g.POST("/detail", func(c echo.Context) error {
@@ -49,10 +50,9 @@ func Router(e *echo.Echo, ua adapter.Users, au usecase.Auth) {
 
 		if err != nil {
 			return ErrorHandler(c, err)
-		} else {
-			return c.JSON(200, res)
 		}
 
+		return c.JSON(200, res)
 	})
 
 	g.POST("/update", func(c echo.Context) error {
@@ -65,9 +65,9 @@ func Router(e *echo.Echo, ua adapter.Users, au usecase.Auth) {
 
 		if err != nil {
 			return ErrorHandler(c, err)
-		} else {
-			return c.JSON(200, nil)
 		}
+
+		return c.JSON(200, nil)
 	})
 
 	g.POST("/delete", func(c echo.Context) error {
@@ -80,8 +80,8 @@ func Router(e *echo.Echo, ua adapter.Users, au usecase.Auth) {
 
 		if err != nil {
 			return ErrorHandler(c, err)
-		} else {
-			return c.JSON(200, nil)
 		}
+
+		return c.JSON(200, nil)
 	})
 }

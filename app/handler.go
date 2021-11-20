@@ -1,26 +1,17 @@
 package main
 
 import (
-	"errors"
-
 	"github.com/hmrkm/simple-user-manage/domain"
 	"github.com/labstack/echo/v4"
 )
 
 func ErrorHandler(c echo.Context, err error) error {
-
-	if errors.As(err, &domain.ErrNotFound) ||
-		errors.As(err, &domain.ErrTokenWasExpired) {
+	switch err {
+	case domain.ErrNotFound, domain.ErrTokenWasExpired:
 		return c.JSON(404, nil)
-	}
-
-	if errors.As(err, &domain.ErrInvalidVerify) {
+	case domain.ErrInvalidVerify:
 		return c.JSON(401, nil)
-	}
-
-	if err != nil {
+	default:
 		return c.JSON(500, nil)
 	}
-
-	return nil
 }

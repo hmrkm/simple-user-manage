@@ -4,6 +4,7 @@ volumes:
   mysql-volume:
   golang-volume:
   auth-volume:
+  rights-volume:
 
 services:
   auth:
@@ -13,6 +14,16 @@ services:
     volumes:
       - ./auth/app:/workspace
       - auth-volume:/go
+    working_dir: /workspace
+    env_file:
+      - ./auth/.env
+  rights:
+    build: rights/app
+    ports:
+      - 8081:80
+    volumes:
+      - ./rights/app:/workspace
+      - rights-volume:/go
     working_dir: /workspace
     env_file:
       - ./auth/.env

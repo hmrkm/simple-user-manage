@@ -38,9 +38,10 @@ func main() {
 	ua := adapter.NewUsers(usu)
 
 	au := usecase.NewAuth(config.AuthenticationEndpoint, http, usd)
+	ru := usecase.NewRights(config.RightsEndpoint, http)
 
 	e := echo.New()
-	Router(e, ua, au)
+	Router(e, ua, au, ru)
 
 	e.Logger.Fatal(e.Start(":80"))
 }

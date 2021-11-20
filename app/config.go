@@ -5,6 +5,7 @@ type Config struct {
 	MysqlPassword          string `split_words:"true"`
 	MysqlDatabase          string `split_words:"true"`
 	AuthenticationEndpoint string `split_words:"true"`
+	RightsEndpoint         string `split_words:"true"`
 	HttpRetryNumber        int    `split_words:"true"`
 	HttpSleepSecond        int    `split_words:"true"`
 }

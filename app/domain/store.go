@@ -9,5 +9,4 @@ type Store interface {
 	Update(targetAddr interface{}, params map[string]interface{}) error
 	Delete(targetAddr interface{}) error
 	Count(targetAddr interface{}, count *int64) error
-	IsNotFoundError(error) bool
 }

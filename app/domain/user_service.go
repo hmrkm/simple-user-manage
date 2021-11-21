@@ -1,9 +1,5 @@
 package domain
 
-import (
-	"github.com/pkg/errors"
-)
-
 //go:generate mockgen -source=$GOFILE -self_package=github.com/hmrkm/simple-user-manage/$GOPACKAGE -package=$GOPACKAGE -destination=user_service_mock.go
 type UserService interface {
 	Create(id string, email string, hashedPassword string) error

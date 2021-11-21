@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 
 	"github.com/hmrkm/simple-user-manage/domain"
-	"github.com/pkg/errors"
 )
 
 //go:generate mockgen -source=$GOFILE -self_package=github.com/hmrkm/simple-user-manage/$GOPACKAGE -package=$GOPACKAGE -destination=auth_mock.go

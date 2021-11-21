@@ -66,7 +66,3 @@ func (m Mysql) Delete(targetAddr interface{}) error {
 func (m Mysql) Count(targetAddr interface{}, count *int64) error {
 	return m.conn.Model(targetAddr).Count(count).Error
 }
-
-func (m Mysql) IsNotFoundError(err error) bool {
-	return errors.Is(gorm.ErrRecordNotFound, err)
-}

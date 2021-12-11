@@ -26,7 +26,14 @@ func TestRights(t *testing.T) {
 			"dummy_resorce",
 			nil,
 		},
-	}
+		{
+			"異常ケース",
+			"dummy_endpoint",
+			context.Background(),
+			"dummy_user_id",
+			"dummy_resorce",
+			domain.ErrRequest,
+		},	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {

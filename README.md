@@ -17,8 +17,3 @@
 5. `docker-compose up -d`
 6. DBに`app/docs/migration.sql`の内容を反映
 7. `app/docs/insert_test_user.sql`でテストデータを追加
-
-## 使い方
-
-1. `http://localhsot:8080/v1/auth`で認証し、トークンを取得
-2. `auth_token`ヘッダーに取得したトークンを書き込むことで各APIが叩けるようになる

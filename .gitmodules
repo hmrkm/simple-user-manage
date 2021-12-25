@@ -1,6 +1,0 @@
-[submodule "auth"]
-	path = auth
-	url = git@github.com:hmrkm/simple-auth.git
-[submodule "rights"]
-	path = rights
-	url = git@github.com:hmrkm/simple-rights.git

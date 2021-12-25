@@ -2,14 +2,11 @@ package main
 
 import (
 	"github.com/hmrkm/simple-user-manage/adapter"
-	"github.com/hmrkm/simple-user-manage/usecase"
 	"github.com/labstack/echo/v4"
 )
 
-func Router(e *echo.Echo, ua adapter.Users, au usecase.Auth, ru usecase.Rights) {
+func Router(e *echo.Echo, ua adapter.Users) {
 	g := e.Group("/v1/users")
-	g.Use(AuthMiddleware(au))
-	g.Use(RightsMiddleware(ru))
 	g.POST("/list", func(c echo.Context) error {
 		req := adapter.RequestUsersList{}
 		if err := c.Bind(&req); err != nil {

@@ -31,17 +31,12 @@ func main() {
 	mysql := io.NewMysql(db)
 	defer mysql.Close()
 
-	http := io.NewHTTP(config.HttpRetryNumber, config.HttpSleepSecond)
-
 	usd := domain.NewUserService(mysql)
 	usu := usecase.NewUsers(usd, mysql)
 	ua := adapter.NewUsers(usu)
 
-	au := usecase.NewAuth(config.AuthenticationEndpoint, http, usd)
-	ru := usecase.NewRights(config.RightsEndpoint, http)
-
 	e := echo.New()
-	Router(e, ua, au, ru)
+	Router(e, ua)
 
 	e.Logger.Fatal(e.Start(":80"))
 }
